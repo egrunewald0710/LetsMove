@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "LetsMove",
+    "slug": "letsmove",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "plugins": [
+      "expo-font",
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "LetsMove uses your photos when you attach training images to AI Coach."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.letsmove.app"
+    },
+    "android": {
+      "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.letsmove.app"
+    },
+    "web": {
+      "favicon": "./assets/logo.png"
+    }
+  }
+}

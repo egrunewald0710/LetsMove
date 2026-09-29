@@ -1,0 +1,16 @@
+.env
+node_modules/
+.expo/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mac system files
+.DS_Store
+
+# iOS specific build/pod files
+ios/Pods/
+ios/build/
+*.xcworkspace
+DerivedData/
