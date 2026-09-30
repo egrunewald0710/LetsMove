@@ -1,180 +1,59 @@
-# LetsMove — MVP
+**# LetsMove App Overview**
 
-A triathlon/endurance training app: auth, athlete profile & training zones,
-a training calendar, and a swim/bike/run/gym workout builder with an
-interval editor. Built with **React Native + Expo** and **Supabase**.
+LetsMove is a mobile training companion for triathlon and endurance athletes. It brings an athlete's training schedule, workouts, race goals, and coaching conversations into one place. The app is built with React Native and Expo, with Supabase providing authentication and cloud data storage.
 
-This covers the Month 1 MVP (auth, profile, calendar, workout builder) and
-an AI endurance coach for questions, training-file review, and workout
-creation. Strava sync, coach marketplace, and payments remain future work.
+**## Who It Is For**
 
-## 1. Set up Supabase (5 minutes)
+LetsMove is designed for athletes who want to plan consistent swim, bike, run, strength, brick, and recovery sessions. Athletes can use the app on iOS or Android, review their progress, and stay connected with an assigned coach.
 
-1. Go to https://supabase.com, create a free project.
-2. In the dashboard, open **SQL Editor** → **New Query**.
-3. Paste the entire contents of `supabase/schema.sql` and click **Run**.
-  This creates the profile, workout, race, and AI chat tables,
-   turns on Row Level Security so users can only see their own data, and
-   adds a trigger that auto-creates a profile row when someone signs up.
-4. Go to **Project Settings → API**. Copy the **Project URL** and the
-   **anon public** key.
+**## Athlete Experience**
 
-## 2. Plug in your Supabase credentials — do this
+\- **\*\*Home dashboard:\*\*** See today's planned sessions, the upcoming week, and progress toward a goal race.
 
-Copy the example env file:
+\- **\*\*Training calendar:\*\*** Browse scheduled sessions by date and sport, and add workouts to the plan.
 
-```bash
-cp .env.example .env
-```
+\- **\*\*Workout builder:\*\*** Create sessions with a sport, duration, notes, and interval steps.
 
-Open `.env` and paste your values:
+\- **\*\*Workout library:\*\*** Find and review completed training sessions.
 
-```
-EXPO_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=YOUR-ANON-PUBLIC-KEY
-```
+\- **\*\*Analysis:\*\*** Review completed training time, distance, and sport mix.
 
-That's it — `src/lib/supabase.ts` reads these automatically. (If you'd
-rather not use a `.env` file, you can hardcode the two strings directly
-near the top of `src/lib/supabase.ts` instead — it's clearly marked.)
+\- **\*\*Race calendar:\*\*** Track upcoming events and countdowns.
 
-Use the **anon public** key only. Never put the `service_role` secret
-key in the app.
+\- **\*\*Reminders:\*\*** Opt in to local reminders for planned workout days.
 
-### Apple and Google sign-in
+\- **\*\*Athlete profile:\*\*** Keep training zones and goal-race information together, including bike FTP, run threshold pace, swim CSS, and heart-rate values.
 
-Add `letsmove://auth/callback` to **Supabase → Authentication → URL
-Configuration → Redirect URLs**. When testing in Expo Go, also allow the
-development redirect pattern `exp://**`; Expo generates the active callback
-URI from the Metro host and port. In **Authentication → Providers**, enable
-Google and Apple. For each provider, configure its client credentials in
-Supabase and register Supabase's callback URL
-(`https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`) with the provider.
-For Apple, also enable Sign in with Apple for the `com.letsmove.app` App ID.
+**## Coaching**
 
-The app uses native Sign in with Apple on iOS and browser OAuth for Google;
-Apple on Android uses browser OAuth. Rebuild the native app after changing
-the app scheme or Apple capability. Provider secrets belong in Supabase, not
-in the app.
+LetsMove includes two distinct coaching experiences:
 
-## 3. Install and run
+\- **\*\*AI endurance coach:\*\*** Ask training questions, review supported training files, and generate workouts or structured plans.
 
-```bash
-npm install
-npx expo start
-```
+\- **\*\*Assigned coach chat:\*\*** From the Coach Marketplace, athletes can see coaches with an active assignment and open a private conversation. The app checks the logged-in athlete's assignment in Supabase. Messages and read receipts are stored in \`coach_messages\`; row-level security limits access to the assigned coach and athlete.
 
-Scan the QR code with the Expo Go app (iOS/Android), or press `i` / `a`
-to open a simulator, or `w` for web.
+The coach backend also supports assigned coaches reading an athlete's planned workouts and creating or editing planned training. Completed workout data remains athlete-owned.
 
-## What's included
+**## Marketplace Status**
 
-- **Auth** — email/password sign up & login via Supabase Auth
-  (`src/screens/auth`, `src/contexts/AuthContext.tsx`)
-- **Profile & zones** — name, goal race, FTP (bike), threshold pace
-  (run), CSS pace (swim), max/resting HR (`src/screens/ProfileScreen.tsx`)
-- **Training calendar** — month view with dots per sport, tap a day to
-  see/add workouts (`src/screens/CalendarScreen.tsx`)
-- **Workout builder** — pick a sport, set total duration in hours and minutes,
-  and save workouts to Supabase
-  (`src/screens/WorkoutBuilderScreen.tsx`)
-- **Home dashboard** — today's workouts + next 7 days
-  (`src/screens/HomeScreen.tsx`)
-- **Race calendar** — manage upcoming events and countdowns
-  (`src/screens/RaceScreen.tsx`)
-- **Workout library** — search and filter completed sessions
-  (`src/screens/WorkoutLibraryScreen.tsx`)
-- **Analysis** — review completed workout time, distance, and sport mix
-  (`src/screens/AnalysisScreen.tsx`)
-- **Workout reminders** — opt-in 8:00 AM local alerts on planned workout days
-  (`src/lib/workoutReminders.ts`)
-- **AI endurance coach** — persistent chat, training-file review, workout
-  creation, and structured plans through authenticated Supabase Edge Functions
+The marketplace screen currently shows sample coach-built training plans for browsing. The assigned-coach section is separate from those sample listings: it only displays coaches connected to the signed-in athlete through an active Supabase assignment.
 
-### Configure AI features
+**## Data and Access**
 
-For an existing database, run `supabase/migrations/20260928_ai_coach_chat.sql`
-and `supabase/migrations/20260928_races.sql` in the Supabase SQL Editor. Add
-`OPENROUTER_API_KEY` as a Supabase Edge
-Function secret in the Dashboard. Do not put provider keys in `.env` or
-prefix them with `EXPO_PUBLIC_`; those values are included in the client app.
-Link the project with the Supabase CLI, then deploy both functions:
+Supabase Auth identifies the signed-in user. Supabase Row Level Security policies restrict access to each user's data and enforce coach-athlete assignment rules for shared workouts and messages. The mobile app uses the Supabase anon public key; privileged service-role credentials must never be included in the app.
 
-```bash
-npx supabase link --project-ref YOUR_PROJECT_REF
-npx supabase functions deploy generate-training-plan
-npx supabase functions deploy triathlon-coach
-```
+**## Technology**
 
-The coach accepts PDF, text, Markdown, CSV, JSON, JPEG, PNG, and WebP files
-up to 3 MB total per message. File contents are sent to OpenRouter for that
-request; chat history stores message text and attachment names, not raw files.
+\- React Native and Expo
 
-## Database schema
+\- TypeScript
 
-```
-profiles        — one row per user: zones, goal race, etc.
-workouts        — planned sessions: sport, date, title, status
-workout_steps   — interval rows belonging to a workout (order, duration,
-                   distance, target intensity, repeat count)
-races           — upcoming events owned by each user
-ai_coach_conversations — private chat threads owned by each user
-ai_coach_messages      — private chat messages and workout suggestions
-coaches                — approved coach profiles
-coach_athletes         — coach-athlete assignments and their status
-chats, messages        — private conversations between assigned coaches and athletes
-reviews                — athlete reviews of coaches
-```
+\- Supabase Auth, Postgres, Row Level Security, and Realtime
 
-All application tables have Row Level Security enabled. Users can access
-their own rows, with assigned-coach access to planned workouts as described
-below.
-
-After the core tables exist, apply
-`supabase/migrations/20260930_coach_marketplace_backend.sql` and
-`supabase/migrations/20260930_coach_portal_profiles.sql`, then
-`supabase/migrations/20261001_coach_messages.sql`. Coach profiles
-and assignments are managed server-side. Active coaches can read assigned
-athletes' workouts and create, edit, or delete planned workouts and their
-steps; workout completion data remains athlete-owned. The mobile Coach
-Marketplace shows each athlete's active assigned coach and opens a private
-chat after verifying the assignment. Chat messages and read receipts use
-`coach_messages`, with active-assignment checks enforced by row-level
-security. Keep the Supabase `service_role` key on the website server and
-never in browser code.
-
-## Next steps (from your original plan)
-
-- **Strava sync** — OAuth against Strava's API, store `activities` linked
-  to `workouts` to compare planned vs. actual.
-- **Coach marketplace** — add `coaches`, `chats`, `messages`, `reviews`
-  tables; a coach role that can write to an athlete's calendar.
-- **Subscriptions** — Stripe + Supabase Edge Functions for webhooks.
-- **Push reminders** — `expo-notifications` for "workout today" alerts.
-
-- [x] Fix the home screen hours trained have it take the hourse and sync it.
-- [x] Progress bar and race day.
-- [x] Fix the top part being stuck to the top.
-- [x] Change workout builder to total hours and minutes.
-- [x] Add a library for previously completed workouts.
+\- Supabase Edge Functions for AI coaching workflows
 
 
-- [x] Display the workout for the day.
-- [ ] Get sleep metrics from the device health app.
-- [ ] Connect Garmin to auto-upload workouts.
-- [x] Add an analysis button to navigation.
-  - the analysis page will take activities and do analysis on them for athletes to review and their coaches. 
-- [x] Add a separate race page for upcoming races.
-- **Coach marketplace website** — backend tables and coach access to assigned
-  athletes' planned workouts are in `supabase/migrations/20260930_coach_marketplace_backend.sql`;
-  coach management and marketplace screens remain future website work.
-- **Subscriptions** — Stripe + Supabase Edge Functions for webhooks.
-- **Push reminders** — `expo-notifications` for "workout today" alerts. 
-- create backend wevsite for coaches.
 
-AI
-- AI endurance chat now supports questions, file review, and workout creation.
-- **Strava sync** — OAuth against Strava's API, store `activities` linked
-  to `workouts` to compare planned vs. actual.
-- **Subscriptions** — Stripe + Supabase Edge Functions for webhooks.
-- **Push reminders** — `expo-notifications` for "workout today" alerts.
+Create a document to investors about this app.
+
+include admin side and messages and everything
