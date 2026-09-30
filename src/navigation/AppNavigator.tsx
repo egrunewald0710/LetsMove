@@ -11,6 +11,10 @@ import WorkoutLibraryScreen from '@/screens/WorkoutLibraryScreen';
 import RaceScreen from '@/screens/RaceScreen';
 import AnalysisScreen from '@/screens/AnalysisScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
+import ProfileHubScreen from '@/screens/ProfileHubScreen';
+import MarketplaceScreen from '@/screens/MarketplaceScreen';
+import MarketplacePlanScreen from '@/screens/MarketplacePlanScreen';
+import CoachChatScreen from '@/screens/CoachChatScreen';
 import AICoachChatScreen from '@/screens/AICoachChatScreen';
 import AICoachPlannerScreen from '@/screens/AICoachPlannerScreen';
 import { colors, radius } from '@/theme/theme';
@@ -21,6 +25,7 @@ const HomeStack = createNativeStackNavigator();
 const CalendarStack = createNativeStackNavigator();
 const LibraryStack = createNativeStackNavigator();
 const AnalysisStack = createNativeStackNavigator();
+const ProfileStack = createNativeStackNavigator();
 const SafeHomeScreen = withSafeArea(HomeScreen);
 const SafeCalendarScreen = withSafeArea(CalendarScreen);
 const SafeWorkoutDetailsScreen = withSafeArea(WorkoutDetailsScreen);
@@ -29,6 +34,10 @@ const SafeWorkoutLibraryScreen = withSafeArea(WorkoutLibraryScreen);
 const SafeRaceScreen = withSafeArea(RaceScreen);
 const SafeAnalysisScreen = withSafeArea(AnalysisScreen);
 const SafeAICoachChatScreen = withSafeArea(AICoachChatScreen);
+const SafeProfileHubScreen = withSafeArea(ProfileHubScreen);
+const SafeMarketplaceScreen = withSafeArea(MarketplaceScreen);
+const SafeMarketplacePlanScreen = withSafeArea(MarketplacePlanScreen);
+const SafeCoachChatScreen = withSafeArea(CoachChatScreen);
 
 function HomeStackScreen() {
   return (
@@ -134,6 +143,45 @@ function AnalysisStackScreen() {
   );
 }
 
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.bg },
+        headerTintColor: colors.text,
+        headerTitleStyle: { fontWeight: '800' },
+        headerShadowVisible: false,
+      }}
+    >
+      <ProfileStack.Screen
+        name="ProfileHome"
+        component={SafeProfileHubScreen}
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen
+        name="AthleteProfile"
+        component={SafeProfileScreen}
+        options={{ title: 'Athlete profile' }}
+      />
+      <ProfileStack.Screen
+        name="Marketplace"
+        component={SafeMarketplaceScreen}
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen
+        name="MarketplacePlan"
+        component={SafeMarketplacePlanScreen}
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen
+        name="CoachChat"
+        component={SafeCoachChatScreen}
+        options={{ headerShown: false }}
+      />
+    </ProfileStack.Navigator>
+  );
+}
+
 export default function AppNavigator() {
   return (
     <Tab.Navigator
@@ -180,7 +228,7 @@ export default function AppNavigator() {
       <Tab.Screen name="Calendar" component={CalendarStackScreen} />
       <Tab.Screen name="Library" component={LibraryStackScreen} />
       <Tab.Screen name="Analysis" component={AnalysisStackScreen} />
-      <Tab.Screen name="Profile" component={SafeProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileStackScreen} />
     </Tab.Navigator>
   );
 }

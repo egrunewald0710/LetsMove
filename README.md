@@ -41,6 +41,22 @@ near the top of `src/lib/supabase.ts` instead — it's clearly marked.)
 Use the **anon public** key only. Never put the `service_role` secret
 key in the app.
 
+### Apple and Google sign-in
+
+Add `letsmove://auth/callback` to **Supabase → Authentication → URL
+Configuration → Redirect URLs**. When testing in Expo Go, also allow the
+development redirect pattern `exp://**`; Expo generates the active callback
+URI from the Metro host and port. In **Authentication → Providers**, enable
+Google and Apple. For each provider, configure its client credentials in
+Supabase and register Supabase's callback URL
+(`https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`) with the provider.
+For Apple, also enable Sign in with Apple for the `com.letsmove.app` App ID.
+
+The app uses native Sign in with Apple on iOS and browser OAuth for Google;
+Apple on Android uses browser OAuth. Rebuild the native app after changing
+the app scheme or Apple capability. Provider secrets belong in Supabase, not
+in the app.
+
 ## 3. Install and run
 
 ```bash
@@ -104,10 +120,28 @@ workout_steps   — interval rows belonging to a workout (order, duration,
 races           — upcoming events owned by each user
 ai_coach_conversations — private chat threads owned by each user
 ai_coach_messages      — private chat messages and workout suggestions
+coaches                — approved coach profiles
+coach_athletes         — coach-athlete assignments and their status
+chats, messages        — private conversations between assigned coaches and athletes
+reviews                — athlete reviews of coaches
 ```
 
-All application tables have Row Level Security enabled so users can only
-read or write their own rows.
+All application tables have Row Level Security enabled. Users can access
+their own rows, with assigned-coach access to planned workouts as described
+below.
+
+After the core tables exist, apply
+`supabase/migrations/20260930_coach_marketplace_backend.sql` and
+`supabase/migrations/20260930_coach_portal_profiles.sql`, then
+`supabase/migrations/20261001_coach_messages.sql`. Coach profiles
+and assignments are managed server-side. Active coaches can read assigned
+athletes' workouts and create, edit, or delete planned workouts and their
+steps; workout completion data remains athlete-owned. The mobile Coach
+Marketplace shows each athlete's active assigned coach and opens a private
+chat after verifying the assignment. Chat messages and read receipts use
+`coach_messages`, with active-assignment checks enforced by row-level
+security. Keep the Supabase `service_role` key on the website server and
+never in browser code.
 
 ## Next steps (from your original plan)
 
@@ -131,16 +165,16 @@ read or write their own rows.
 - [x] Add an analysis button to navigation.
   - the analysis page will take activities and do analysis on them for athletes to review and their coaches. 
 - [x] Add a separate race page for upcoming races.
-- **Coach marketplace** — add `coaches`, `chats`, `messages`, `reviews`
-  tables; a coach role that can write to an athlete's calendar.
+- **Coach marketplace website** — backend tables and coach access to assigned
+  athletes' planned workouts are in `supabase/migrations/20260930_coach_marketplace_backend.sql`;
+  coach management and marketplace screens remain future website work.
 - **Subscriptions** — Stripe + Supabase Edge Functions for webhooks.
 - **Push reminders** — `expo-notifications` for "workout today" alerts. 
+- create backend wevsite for coaches.
 
 AI
 - AI endurance chat now supports questions, file review, and workout creation.
 - **Strava sync** — OAuth against Strava's API, store `activities` linked
   to `workouts` to compare planned vs. actual.
-- **Coach marketplace** — add `coaches`, `chats`, `messages`, `reviews`
-  tables; a coach role that can write to an athlete's calendar.
 - **Subscriptions** — Stripe + Supabase Edge Functions for webhooks.
 - **Push reminders** — `expo-notifications` for "workout today" alerts.

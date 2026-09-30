@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { colors, radius, spacing } from '@/theme/theme';
+import SocialAuthButtons from './SocialAuthButtons';
 
 export default function RegisterScreen({ navigation }: any) {
   const { signUp } = useAuth();
@@ -84,6 +85,8 @@ export default function RegisterScreen({ navigation }: any) {
         <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign Up</Text>}
         </TouchableOpacity>
+
+        <SocialAuthButtons disabled={loading} />
 
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.link}>
